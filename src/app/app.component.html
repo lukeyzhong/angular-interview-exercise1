@@ -3,12 +3,48 @@
 </header>
 
 <div class="main">
+  <!-- <p>
+    <strong>Health Ping Result:</strong> {{healthPing | async}} 
+  </p> -->
 
-  <p>
-    <strong>Health Ping Result:</strong> {{healthPing | async}}
-  </p>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div>
+      <label for="fromDate">fromDate</label>
+      <input
+        type="date"  
+        formControlName="fromDate"
+        id="fromDate"
+        value=""
+      />
+    </div>
+    <div>
+      <label for="toDate">toDate</label>
+      <input
+        type="date"
+        formControlName="toDate"
+        id="toDate"
+        value=""
+      />
+    </div>
+    <div>
+      <label for="origin">origin</label>
+      <input type="text" formControlName="origin" id="origin" />
+    </div>
+    <div>
+      <label for="destination">destination</label>
+      <input type="text" formControlName="destination" id="destination" />
+    </div>
 
+    <button>Submit</button>
+  </form>
+
+  <ul>
+    <li *ngFor="let flight of flightList$ | async"></li>
+  </ul>
 </div>
 <footer class="footer">
-  Original Repository: <a href="https://github.com/Alaska-ITS/angular-interview-exercise">angular-interview-exercise</a>
+  Original Repository:
+  <a href="https://github.com/Alaska-ITS/angular-interview-exercise"
+    >angular-interview-exercise</a
+  >
 </footer>

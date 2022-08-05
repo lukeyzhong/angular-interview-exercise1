@@ -1,28 +1,40 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { environment } from '../environments/environment';
+import { SearchFlight } from './app.component';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FlightsService {
-  private healthEndpoint: string = 'https://apis.qa.alaskaair.com/aag/1/guestServices/flights/ping';
-  private flightsEndpoint: string = 'https://apis.qa.alaskaair.com/aag/1/guestServices/flights/?fromDate=2021-07-25&toDate=2021-07-25&origin=SEA&destination=LAX&nonStopOnly=false';
+  private baseUrl: string =
+    'https://apis.qa.alaskaair.com/aag/1/guestServices/flights/?nonStopOnly=false&';
+  private options = {
+    headers: new HttpHeaders({
+      'Ocp-Apim-Subscription-Key': environment.apiKey,
+    }),
+  };
 
-  constructor(private http: HttpClient) { }
+  private flightList: any = [];
+  private flightSbj$ = new BehaviorSubject(this.flightList);
+  flightList$ = this.flightSbj$.asObservable();
 
-  public getHealthPing(): Observable<string> {
-    const options = {
-      headers: new HttpHeaders({
-        'Ocp-Apim-Subscription-Key': environment.apiKey
-      }),
-    };
+  constructor(private http: HttpClient) {}
 
-    return this.http.get<string>(this.healthEndpoint, options).pipe(
-      map((result: string) => {
-        return result;
+  getFlightsEndpoint(data: SearchFlight) {
+    const url = Object.entries(data).reduce(
+      (acc: string, [key, val]: any): string => {
+        return acc + key + '=' + val + '&';
+      },
+      this.baseUrl
+    );
+    
+    return this.http.get(url, this.options).pipe(
+      tap((flightListFromBackEnd: Array<any>) => {
+        this.flightList = [...flightListFromBackEnd];
+        this.flightSbj$.next(this.flightList);
       })
     );
   }
